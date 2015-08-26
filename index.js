@@ -35,7 +35,11 @@ module.exports = function patch (store) {
     return use
   }
 
+  if (arguments.length === 1) {
+    return use
+  }
+
   use.apply(null, slice.call(arguments, 1))
 
-  return use
+  return store
 }

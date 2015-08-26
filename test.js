@@ -29,9 +29,36 @@ function thunk (action, next) {
 }
 
 test('API', function (t) {
-  t.plan(7)
+  t.plan(5)
 
-  var store = createStore(update)
+  function a (action, next) {
+    t.ok(action, 'single call (x2)')
+    next()
+  }
+
+  function b (action, next) {
+    t.equal(action, 1, '`use` function (x3)')
+    next()
+  }
+
+  // Single call
+  // Returns `store` if arguments > 1
+  var store1 = middleware(createStore(update), a, a)
+
+  // `use` function
+  // Returns `use` if arguments === 1
+  var store2 = createStore(update)
+  var use = middleware(store2)
+  use(b)(b, b)
+
+  store1.dispatch(true)
+  store2.dispatch(1)
+})
+
+test('Signature', function (t) {
+  t.plan(6)
+
+  var store = middleware(createStore(update), test, pass)
   var asc = ''
   var desc = ''
 
@@ -50,11 +77,6 @@ test('API', function (t) {
     next()
     desc += 'B'
   }
-
-  var use = middleware(store)
-  var use2 = use(test, pass)
-
-  t.equal(use, use2, '`use` returns itself')
 
   store.dispatch({ foo: 'bar' })
 
