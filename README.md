@@ -118,7 +118,7 @@ function (action, next) {
 }
 ```
 
-#### Call new `dispatch`
+#### Call `dispatch` again
 
 You can call `dispatch` from within middleware. That new action will go through the middleware chain from the top. (Be careful with loops.)
 
