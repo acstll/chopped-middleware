@@ -1,6 +1,6 @@
 # Chopped Middleware
 
-Middleware for [Chopped Redux](http://github.com/acstll/chopped-redux) ([Redux](http://github.com/rackt/redux) compatible).
+This is an implementation of [Redux](http://github.com/rackt/redux) [Middleware](http://rackt.github.io/redux/docs/advanced/Middleware.html). Built to work with [Chopped Redux](http://github.com/acstll/chopped-redux) but Redux-compatible.
 
 Middleware are callbacks that fire in-between a `dispatch(action)` call and the `update(state, action)` call that follows. They receive the dispatched `action` so you can deal with it, before the state updates.
 
@@ -57,6 +57,18 @@ use(fn1, fn2)
 use(fn3)
 ```
 
+### Store Enhancer
+
+There's an `applyMiddleware` function available that works just as the one in Redux.
+
+```js
+var applyMiddleware = require('chopped-middleware/applyMiddleware')
+var createStore = require('redux')
+
+var createStoreWithMiddleware = applyMiddleware(fn1, fn2)(createStore)
+var store = createStoreWithMiddleware(reducer)
+```
+
 ### With middleware you can…
 
 - `getState()` *before* and *after* the state update
@@ -91,7 +103,7 @@ function (action, next) {
 function (action, next) {
   var newAction = { foo: bar }
   // first argument is for node-style errors, so `null` means OK
-  next(null, newAction)
+  next(null, newAction) // next middleware receives `newAction`
 }
 ```
 
