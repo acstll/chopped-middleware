@@ -21,9 +21,9 @@ function update (state, action) {
   return state
 }
 
-function thunk (action, next) {
+function thunk (action, store, next) {
   if (typeof action === 'function') {
-    return action(this)
+    return action(store)
   }
   next()
 }
@@ -31,12 +31,12 @@ function thunk (action, next) {
 test('API', function (t) {
   t.plan(5)
 
-  function a (action, next) {
+  function a (action, store, next) {
     t.ok(action, 'single call (x2)')
     next()
   }
 
-  function b (action, next) {
+  function b (action, store, next) {
     t.equal(action, 1, '`use` function (x3)')
     next()
   }
@@ -62,16 +62,16 @@ test('Signature', function (t) {
   var asc = ''
   var desc = ''
 
-  function test (action, next) {
-    t.equal(typeof this.dispatch, 'function', '`this.dispatch` is there')
-    t.equal(typeof this.getState, 'function', '`this.getState` is there')
+  function test (action, store, next) {
+    t.equal(typeof store.dispatch, 'function', '`store.dispatch` is there')
+    t.equal(typeof store.getState, 'function', '`store.getState` is there')
     t.equal(action.foo, 'bar', 'action is passed in correctly')
     asc += 'A'
     next()
     desc += 'A'
   }
 
-  function pass (action, next) {
+  function pass (action, store, next) {
     t.pass('`use` can take any number of functions')
     asc += 'B'
     next()
@@ -89,7 +89,7 @@ test('`getState` works before and after dispatching (next)', function (t) {
 
   var store = createStore(update)
 
-  middleware(store)(function (action, next) {
+  middleware(store)(function (action, store, next) {
     t.equal(typeof store.getState(), 'undefined', 'before..')
     next()
     t.equal(store.getState(), 1, 'after..')
@@ -103,7 +103,7 @@ test('Actions can be transformed', function (t) {
 
   var store = createStore(function (x) { return x })
 
-  function transform (action, next) {
+  function transform (action, store, next) {
     action = {
       beep: 'boop'
     }
@@ -128,7 +128,7 @@ test('Can skip dispatching completely', function (t) {
   store.dispatch(action)
   t.equal(store.getState(), 10, 'first check')
 
-  middleware(store, function (action, next) {
+  middleware(store, function (action, store, next) {
     t.pass()
     next(new Error('Skip'))
   })
@@ -143,12 +143,12 @@ test('Internal `dispatch` calls go through the chain', function (t) {
   var store = createStore(update, 4)
   var log = []
 
-  function logger (action, next) {
+  function logger (action, store, next) {
     log.push(action)
     next()
   }
 
-  function pass (action, next) {
+  function pass (action, store, next) {
     t.pass('passing.. (x1)')
     next()
     t.equal(store.getState(), 5, 'dispatch check')
@@ -166,7 +166,7 @@ test('Internal `dispatch` calls go through the chain', function (t) {
 test('Redux and applyMiddleware', function (t) {
   t.plan(4)
 
-  function pass (action, next) {
+  function pass (action, store, next) {
     t.pass('passing.. (x3)')
     next()
     t.equal(store.getState(), 1000, 'work')

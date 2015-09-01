@@ -12,9 +12,9 @@ Middleware are callbacks that fire in-between a `dispatch(action)` call and the 
 ### Signature of a middleware function
 
 ```js
-function (action, next) {
-  // this.dispatch
-  // this.getState
+function (action, store, next) {
+  // store.dispatch()
+  // store.getState()
   next()
 }
 ```
@@ -81,10 +81,10 @@ and they work asyncly.
 #### `getState()`
 
 ```js
-function (action, next) {  
-  this.getState() // returns state before the update
+function (action, store, next) {  
+  store.getState() // returns state before the update
   next() // state updates at this point
-  this.getState() // returns state after..
+  store.getState() // returns state after..
 }
 ```
 
@@ -94,13 +94,13 @@ The middleware chain is handled by the [`step.js`](http://npm.im/step.js) module
 
 ```js
 // Mutate, add `foo` prop
-function (action, next) {
+function (action, store, next) {
   action.foo = 'bar'
   next()
 }
 
 // Replace, original action gets lost
-function (action, next) {
+function (action, store, next) {
   var newAction = { foo: bar }
   // first argument is for node-style errors, so `null` means OK
   next(null, newAction) // next middleware receives `newAction`
@@ -113,7 +113,7 @@ You can abort the state update by calling `next` by passing anything other than 
 
 ```js
 // State will never update
-function (action, next) {
+function (action, store, next) {
   next(new Error('Forget it'))
 }
 ```
@@ -123,9 +123,9 @@ function (action, next) {
 You can call `dispatch` from within middleware. That new action will go through the middleware chain from the top. (Be careful with loops.)
 
 ```js
-function (action, next) {
+function (action, store, next) {
   if (action.foo) {
-    this.dispatch(bar)
+    store.dispatch(bar)
     return // stop the chain
   }
   next() // continue otherwise

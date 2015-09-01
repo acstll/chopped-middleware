@@ -20,10 +20,10 @@ module.exports = function patch (store) {
       throw new Error('A `dispatch` call inside a middleware is probably causing a loop.')
     }
 
-    step(action).apply({
+    step(action, {
       getState: store.getState,
       dispatch: store.dispatch
-    }, args)
+    }).apply(null, args)
 
     return action
   }
